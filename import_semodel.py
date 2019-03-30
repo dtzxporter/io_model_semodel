@@ -47,7 +47,6 @@ def load(self, context, filepath=""):
         blend_mesh = bmesh.new()
 
         vertex_color_layer = blend_mesh.loops.layers.color.new("Color")
-        vertex_alpha_layer = blend_mesh.loops.layers.color.new("Alpha")
         vertex_weight_layer = blend_mesh.verts.layers.deform.new()
 
         vertex_uv_layers = []
