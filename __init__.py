@@ -3,12 +3,14 @@ import bpy_extras.io_utils
 from bpy.types import Operator, AddonPreferences
 from bpy.props import *
 from bpy_extras.io_utils import ExportHelper, ImportHelper
+from bpy.utils import register_class
+from bpy.utils import unregister_class
 
 bl_info = {
     "name": "SEModel Support",
     "author": "DTZxPorter",
     "version": (0, 0, 1),
-    "blender": (2, 78, 0),
+    "blender": (2, 80, 0),
     "location": "File > Import",
     "description": "Import SEModel",
     "wiki_url": "https://github.com/dtzxporter/io_model_semodel",
@@ -25,9 +27,9 @@ class ImportSEModel(bpy.types.Operator, ImportHelper):
     bl_options = {'PRESET'}
 
     filename_ext = ".semodel"
-    filter_glob = StringProperty(default="*.semodel", options={'HIDDEN'})
+    filter_glob: StringProperty(default="*.semodel", options={'HIDDEN'})
 
-    files = CollectionProperty(type=bpy.types.PropertyGroup)
+    files: CollectionProperty(type=bpy.types.PropertyGroup)
 
     def execute(self, context):
         from . import import_semodel
@@ -50,13 +52,13 @@ def menu_func_semodel_import(self, context):
 
 
 def register():
-    bpy.utils.register_module(__name__)
-    bpy.types.INFO_MT_file_import.append(menu_func_semodel_import)
+    bpy.utils.register_class(ImportSEModel)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_semodel_import)
 
 
 def unregister():
     bpy.utils.unregister_module(__name__)
-    bpy.types.INFO_MT_file_import.remove(menu_func_semodel_import)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_semodel_import)
 
 
 if __name__ == "__main__":
