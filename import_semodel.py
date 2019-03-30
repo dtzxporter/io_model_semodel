@@ -8,13 +8,39 @@ from bpy_extras.image_utils import load_image
 from . import semodel as SEModel
 
 
+def __build_image_path__(asset_path, image_path):
+    root_path = os.path.dirname(asset_path)
+    return os.path.join(root_path, image_path)
+
+
 def load(self, context, filepath=""):
     ob = bpy.context.object
     scene = bpy.context.scene
     model_name = os.path.splitext(os.path.basename(filepath))[0]
 
     model = SEModel.Model(filepath)
+
     mesh_objs = []
+    mesh_mats = []
+
+    for mat in model.materials:
+        new_mat = bpy.data.materials.get(mat.name)
+        if new_mat is not None:
+            mesh_mats.append(new_mat)
+            continue
+
+        new_mat = bpy.data.materials.new(name=mat.name)
+        new_mat.use_nodes = True
+
+        bsdf_shader = new_mat.node_tree.nodes["Principled BSDF"]
+        material_color_map = new_mat.node_tree.nodes.new("ShaderNodeTexImage")
+        material_color_map.image = bpy.data.images.load(
+            __build_image_path__(filepath, mat.inputData.diffuseMap))
+
+        new_mat.node_tree.links.new(
+            bsdf_shader.inputs["Base Color"], material_color_map.outputs["Color"])
+
+        mesh_mats.append(new_mat)
 
     for mesh in model.meshes:
         new_mesh = bpy.data.meshes.new("SEModelMesh")
@@ -99,7 +125,14 @@ def load(self, context, filepath=""):
             model_name, new_mesh.name), new_mesh)
         mesh_objs.append(obj)
 
-        bpy.context.view_layer.active_layer_collection.collection.objects.link(obj)
+        # Apply mesh materials
+        for mat_index in mesh.materialReferences:
+            if mat_index < 0:
+                continue
+            obj.data.materials.append(mesh_mats[mat_index])
+
+        bpy.context.view_layer.active_layer_collection.collection.objects.link(
+            obj)
         bpy.context.view_layer.objects.active = obj
 
         # Create vertex groups for weights
@@ -113,7 +146,8 @@ def load(self, context, filepath=""):
     skel_obj = bpy.data.objects.new("%s_skel" % model_name, armature)
     skel_obj.show_in_front = True
 
-    bpy.context.view_layer.active_layer_collection.collection.objects.link(skel_obj)
+    bpy.context.view_layer.active_layer_collection.collection.objects.link(
+        skel_obj)
     bpy.context.view_layer.objects.active = skel_obj
 
     # Begin edit mode
@@ -152,7 +186,8 @@ def load(self, context, filepath=""):
     bone_vis = bpy.context.active_object
     bone_vis.data.name = bone_vis.name = "semodel_bone_vis"
     bone_vis.use_fake_user = True
-    bpy.context.view_layer.active_layer_collection.collection.objects.unlink(bone_vis)
+    bpy.context.view_layer.active_layer_collection.collection.objects.unlink(
+        bone_vis)
     bpy.context.view_layer.objects.active = skel_obj
 
     # Calculate armature dimensions...
