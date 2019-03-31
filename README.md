@@ -1,4 +1,4 @@
-# io_model_semodel - SEModel Plugin for Blender (>=2.79)
+# io_model_semodel - SEModel Plugin for Blender (<=2.79)
 
 Provides import and (soon) export support for [SEModel](https://github.com/SE2Dev/SEModel-Docs) (*.semodel) files in Blender 3D.
 
