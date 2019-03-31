@@ -7,7 +7,7 @@ from bpy_extras.io_utils import ExportHelper, ImportHelper
 bl_info = {
     "name": "SEModel Support",
     "author": "DTZxPorter",
-    "version": (0, 0, 1),
+    "version": (0, 0, 3),
     "blender": (2, 78, 0),
     "location": "File > Import",
     "description": "Import SEModel",
