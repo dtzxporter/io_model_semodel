@@ -34,8 +34,12 @@ def load(self, context, filepath=""):
 
         bsdf_shader = new_mat.node_tree.nodes["Principled BSDF"]
         material_color_map = new_mat.node_tree.nodes.new("ShaderNodeTexImage")
-        material_color_map.image = bpy.data.images.load(
-            __build_image_path__(filepath, mat.inputData.diffuseMap))
+
+        try:
+            material_color_map.image = bpy.data.images.load(
+                __build_image_path__(filepath, mat.inputData.diffuseMap))
+        except RuntimeError:
+            pass
 
         new_mat.node_tree.links.new(
             bsdf_shader.inputs["Base Color"], material_color_map.outputs["Color"])
