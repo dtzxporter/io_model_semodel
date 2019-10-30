@@ -228,7 +228,7 @@ def load(self, context, filepath=""):
         modifier.use_vertex_groups = True
 
     # Update the scene
-    bpy.context.scene.update()
+    bpy.context.view_layer.update()
 
     # Reset the view mode
     bpy.ops.object.mode_set(mode='OBJECT')

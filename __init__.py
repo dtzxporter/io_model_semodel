@@ -15,7 +15,6 @@ bl_info = {
     "description": "Import SEModel",
     "wiki_url": "https://github.com/dtzxporter/io_model_semodel",
     "tracker_url": "https://github.com/dtzxporter/io_model_semodel/issues",
-    "support": "COMMUNITY",
     "category": "Import-Export"
 }
 
