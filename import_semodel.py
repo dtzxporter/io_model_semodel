@@ -59,7 +59,11 @@ def load(self, context, filepath=""):
                 blend_mesh.loops.layers.uv.new("UVSet_%d" % uvLayer))
 
         for vert_idx, vert in enumerate(mesh.vertices):
-            blend_mesh.verts.new(Vector(vert.position))
+            blend_mesh.verts.new(Vector((
+                vert.position[0],
+                vert.position[2],
+                vert.position[1]
+            )))
 
         blend_mesh.verts.ensure_lookup_table()
 
@@ -78,7 +82,11 @@ def load(self, context, filepath=""):
                 vert_idx = face.indices[face_index_map[loop_idx]]
 
                 # Build buffer of normals
-                vertex_normal_buffer.append(mesh.vertices[vert_idx].normal)
+                vertex_normal_buffer.append((
+                    mesh.vertices[vert_idx].normal[0],
+                    mesh.vertices[vert_idx].normal[2],
+                    mesh.vertices[vert_idx].normal[1]
+                ))
 
                 # Assign vertex uv layers
                 for uvLayer in range(mesh.matReferenceCount):
@@ -162,9 +170,17 @@ def load(self, context, filepath=""):
         new_bone.tail = 0, 0.05, 0  # Blender is so bad it removes bones if they have 0 length
 
         # Calculate local-space position matrix
-        mat_rot = Quaternion((bone.localRotation[3], bone.localRotation[0],
-                              bone.localRotation[1], bone.localRotation[2])).to_matrix().to_4x4()
-        mat_trans = Matrix.Translation(Vector(bone.localPosition))
+        mat_rot = Quaternion((
+            -bone.localRotation[3],
+            bone.localRotation[0],
+            bone.localRotation[2],
+            bone.localRotation[1]
+        )).to_matrix().to_4x4()
+        mat_trans = Matrix.Translation(Vector((
+            bone.localPosition[0],
+            bone.localPosition[2],
+            bone.localPosition[1]
+        )))
 
         final_mat = mat_trans @ mat_rot
 
