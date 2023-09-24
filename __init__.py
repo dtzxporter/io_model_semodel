@@ -9,7 +9,7 @@ from bpy.utils import unregister_class
 bl_info = {
     "name": "SEModel Support",
     "author": "DTZxPorter",
-    "version": (0, 0, 3),
+    "version": (0, 0, 4),
     "blender": (2, 80, 0),
     "location": "File > Import",
     "description": "Import SEModel",
