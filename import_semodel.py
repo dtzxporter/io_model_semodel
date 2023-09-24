@@ -32,7 +32,7 @@ def load(self, context, filepath=""):
         new_mat = bpy.data.materials.new(name=mat.name)
         new_mat.use_nodes = True
 
-        # Fix for translations of new blender version
+        # Localize the shader name so that we get the correct blender node on different language installs.
         bsdf_shader = new_mat.node_tree.nodes[bpy.app.translations.pgettext_data("Principled BSDF")]
         material_color_map = new_mat.node_tree.nodes.new("ShaderNodeTexImage")
 
