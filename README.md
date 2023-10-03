@@ -6,6 +6,8 @@
 - Get cast plugins [Cast](https://github.com/dtzxporter/cast)
 - "My Tool Doesn't Support Cast" - BEG THE DEVELOPER, CAST IS MUCH EASIER TO EXPORT! Or use the converter.
 
+---
+
 Provides import support for [SEModel](https://github.com/SE2Dev/SEModel-Docs) (*.semodel) files in Blender 3D.
 
 ## Installation
