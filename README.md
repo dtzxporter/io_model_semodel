@@ -2,6 +2,8 @@
 
 Provides import and (soon) export support for [SEModel](https://github.com/SE2Dev/SEModel-Docs) (*.semodel) files in Blender 3D.
 
+[Click here for 2.80 support](https://github.com/dtzxporter/io_model_semodel/tree/blender-28)
+
 ## Installation
 
 1. Select `Clone or download -> Download ZIP` on the io_model_semodel repository page on GitHub.
