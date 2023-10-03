@@ -1,8 +1,12 @@
-# io_model_semodel - SEModel Plugin for Blender (2.80)
+# io_model_semodel - SEModel Plugin for Blender (2.80) (DEPRECATED)
 
-Provides import and (soon) export support for [SEModel](https://github.com/SE2Dev/SEModel-Docs) (*.semodel) files in Blender 3D.
+# NOTICE: SEModels are now DEPRECATED. Cast is the newly supported model format.
 
-[Click here for 2.80 support](https://github.com/dtzxporter/io_model_semodel/tree/blender-28)
+- Convert SEModels to Cast Losslessly [SECast](https://dtzxporter.com/tools/secast)
+- Get cast plugins [Cast](https://github.com/dtzxporter/cast)
+- "My Tool Doesn't Support Cast" - BEG THE DEVELOPER, CAST IS MUCH EASIER TO EXPORT! Or use the converter.
+
+Provides import support for [SEModel](https://github.com/SE2Dev/SEModel-Docs) (*.semodel) files in Blender 3D.
 
 ## Installation
 
