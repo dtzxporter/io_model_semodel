@@ -23,9 +23,6 @@ def load(self, context, filepath=""):
     mesh_objs = []
     mesh_mats = []
 
-    # We are a cycles based material system
-    bpy.context.scene.render.engine = 'CYCLES'
-
     for mat in model.materials:
         new_mat = bpy.data.materials.get(mat.name)
         if new_mat is not None:
@@ -35,7 +32,8 @@ def load(self, context, filepath=""):
         new_mat = bpy.data.materials.new(name=mat.name)
         new_mat.use_nodes = True
 
-        bsdf_shader = new_mat.node_tree.nodes.new("ShaderNodeBsdfDiffuse")
+        # Localize the shader name so that we get the correct blender node on different language installs.
+        bsdf_shader = new_mat.node_tree.nodes[bpy.app.translations.pgettext_data("Principled BSDF")]
         material_color_map = new_mat.node_tree.nodes.new("ShaderNodeTexImage")
 
         try:
@@ -45,7 +43,7 @@ def load(self, context, filepath=""):
             pass
 
         new_mat.node_tree.links.new(
-            bsdf_shader.inputs[0], material_color_map.outputs["Color"])
+            bsdf_shader.inputs["Base Color"], material_color_map.outputs["Color"])
 
         mesh_mats.append(new_mat)
 
@@ -54,7 +52,6 @@ def load(self, context, filepath=""):
         blend_mesh = bmesh.new()
 
         vertex_color_layer = blend_mesh.loops.layers.color.new("Color")
-        vertex_alpha_layer = blend_mesh.loops.layers.color.new("Alpha")
         vertex_weight_layer = blend_mesh.verts.layers.deform.new()
 
         vertex_uv_layers = []
@@ -94,9 +91,7 @@ def load(self, context, filepath=""):
                     loop[vertex_uv_layers[uvLayer]].uv = uv
 
                 # Assign vertex colors
-                loop[vertex_color_layer] = mesh.vertices[vert_idx].color[:3]
-                loop[vertex_alpha_layer] = [
-                    mesh.vertices[vert_idx].color[3]] * 3
+                loop[vertex_color_layer] = mesh.vertices[vert_idx].color
 
         for face in mesh.faces:
             indices = [blend_mesh.verts[face.indices[0]],
@@ -128,7 +123,6 @@ def load(self, context, filepath=""):
 
         new_mesh.normals_split_custom_set(tuple(zip(*(iter(clnors),) * 3)))
         new_mesh.use_auto_smooth = True
-        new_mesh.show_edge_sharp = True
 
         # Add the mesh to the scene
         obj = bpy.data.objects.new("%s_%s" % (
@@ -141,22 +135,24 @@ def load(self, context, filepath=""):
                 continue
             obj.data.materials.append(mesh_mats[mat_index])
 
-        scene.objects.link(obj)
-        scene.objects.active = obj
+        bpy.context.view_layer.active_layer_collection.collection.objects.link(
+            obj)
+        bpy.context.view_layer.objects.active = obj
 
         # Create vertex groups for weights
         for bone in model.bones:
-            obj.vertex_groups.new(bone.name)
+            obj.vertex_groups.new(name=bone.name)
 
     # Create the skeleton
     armature = bpy.data.armatures.new("%s_amt" % model_name)
-    armature.draw_type = "STICK"
+    armature.display_type = "STICK"
 
     skel_obj = bpy.data.objects.new("%s_skel" % model_name, armature)
-    skel_obj.show_x_ray = True
+    skel_obj.show_in_front = True
 
-    scene.objects.link(skel_obj)
-    scene.objects.active = skel_obj
+    bpy.context.view_layer.active_layer_collection.collection.objects.link(
+        skel_obj)
+    bpy.context.view_layer.objects.active = skel_obj
 
     # Begin edit mode
     bpy.ops.object.mode_set(mode='EDIT')
@@ -171,7 +167,7 @@ def load(self, context, filepath=""):
                               bone.localRotation[1], bone.localRotation[2])).to_matrix().to_4x4()
         mat_trans = Matrix.Translation(Vector(bone.localPosition))
 
-        final_mat = mat_trans * mat_rot
+        final_mat = mat_trans @ mat_rot
 
         bone_mats[bone.name] = final_mat
 
@@ -179,7 +175,7 @@ def load(self, context, filepath=""):
         if bone.boneParent > -1:
             new_bone.parent = armature.edit_bones[bone.boneParent]
 
-    scene.objects.active = skel_obj
+    bpy.context.view_layer.objects.active = skel_obj
     bpy.ops.object.mode_set(mode='POSE')
 
     for bone in skel_obj.pose.bones:
@@ -190,12 +186,13 @@ def load(self, context, filepath=""):
 
     # Create natural bone-line structure
     bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3, size=2)
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3, radius=2)
     bone_vis = bpy.context.active_object
     bone_vis.data.name = bone_vis.name = "semodel_bone_vis"
     bone_vis.use_fake_user = True
-    bpy.context.scene.objects.unlink(bone_vis)
-    bpy.context.scene.objects.active = skel_obj
+    bpy.context.view_layer.active_layer_collection.collection.objects.unlink(
+        bone_vis)
+    bpy.context.view_layer.objects.active = skel_obj
 
     # Calculate armature dimensions...
     maxs = [0, 0, 0]
@@ -232,7 +229,7 @@ def load(self, context, filepath=""):
         modifier.use_vertex_groups = True
 
     # Update the scene
-    bpy.context.scene.update()
+    bpy.context.view_layer.update()
 
     # Reset the view mode
     bpy.ops.object.mode_set(mode='OBJECT')
